@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Mendapatkan Buah Grow A Garden</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Fredoka One', cursive;
+      background: linear-gradient(to bottom right, #ffccf9, #ccf5ff);
+      color: #333;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h2, h3 {
+      color: #ff33cc;
+      text-shadow: 0 0 5px white;
+    }
+
+    input, button {
+      padding: 14px;
+      margin: 10px;
+      font-size: 18px;
+      border-radius: 20px;
+      border: none;
+      width: 80%;
+      max-width: 320px;
+      font-family: 'Fredoka One', cursive;
+    }
+
+    button {
+      background-color: #ff66cc;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 0 10px #ff66cc;
+      transition: transform 0.1s ease;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .score {
+      font-size: 30px;
+      color: #ff9900;
+      text-shadow: 1px 1px #fff;
+      margin-bottom: 25px;
+    }
+
+    .fruit-list {
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .fruit-item {
+      background: #ffe6f2;
+      border: 2px solid #ff99cc;
+      margin: 10px auto;
+      padding: 12px;
+      border-radius: 15px;
+      color: #333;
+      box-shadow: 0 0 5px #ffb3d9;
+    }
+
+    .fruit-item button {
+      background-color: #00c37a;
+    }
+
+  </style>
+</head>
+<body>
+
+<canvas id="snowCanvas"></canvas>
+<audio autoplay loop>
+  <source src="https://vgmsite.com/soundtracks/grow-a-garden/smjfbvmgjq/01%20-%20Grow%20a%20Garden.mp3" type="audio/mpeg">
+</audio>
+
+<!-- HALAMAN GAME -->
+<div id="gamePage" class="container">
+  <div class="score">Skor kamu: <span id="score">0</span></div>
+  <button onclick="increaseScore()">TEKAN DI SINI!</button>
+  <button onclick="goToExchange()">AYO TUKER</button>
+</div>
+
+<!-- HALAMAN TUKAR HADIAH -->
+<div id="exchangePage" class="container hidden">
+  <h3>Silakan tukar skor anda </h3>
+
+  <input type="text" id="robloxName" placeholder="Nama kamu">
+
+  <div class="fruit-list">
+    <div class="fruit-item">
+      <div>bend v1 - <b>500 Skor</b></div>
+      <button onclick="exchange('bend v1', 500)">TUKER</button>
+    </div>
+  </div>
+
+  <button onclick="backToGame()">⬅️ Kembali</button>
+</div>
+
+<script>
+  let score = 0;
+
+  function increaseScore() {
+    score++;
+    document.getElementById("score").textContent = score;
+  }
+
+  function goToExchange() {
+    document.getElementById("gamePage").classList.add("hidden");
+    document.getElementById("exchangePage").classList.remove("hidden");
+  }
+
+  function backToGame() {
+    document.getElementById("exchangePage").classList.add("hidden");
+    document.getElementById("gamePage").classList.remove("hidden");
+  }
+
+  function exchange(name, cost) {
+    const user = document.getElementById("robloxName").value;
+
+    if (!user) {
+      alert("Masukkan nama dulu ya!");
+      return;
+    }
+
+    if (score >= cost) {
+      score -= cost;
+      document.getElementById("score").textContent = score;
+      alert(`Berhasil tuker ${name} untuk ${user} web bend https://anezz001.github.io/web/bend.html !`);
+    } else {
+      alert("Skor kamu belum cukup 😭");
+    }
+  }
+
+  // ❄️ Efek salju
+  const canvas = document.getElementById('snowCanvas');
+  const ctx = canvas.getContext('2d');
+  let W = window.innerWidth;
+  let H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+
+  const mf = 80;
+  const flakes = [];
+
+  for (let i = 0; i < mf; i++) {
+    flakes.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 5 + 2,
+      d: Math.random() + 1
+    });
+  }
+
+  function drawFlakes() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+
+    for (let i = 0; i < mf; i++) {
+      const f = flakes[i];
+      ctx.moveTo(f.x, f.y);
+      ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+    }
+
+    ctx.fill();
+    moveFlakes();
+  }
+
+  let angle = 0;
+
+  function moveFlakes() {
+    angle += 0.01;
+
+    for (let i = 0; i < mf; i++) {
+      const f = flakes[i];
+      f.y += Math.pow(f.d, 2) + 1;
+      f.x += Math.sin(angle) * 2;
+
+      if (f.y > H) {
+        flakes[i] = {
+          x: Math.random() * W,
+          y: 0,
+          r: f.r,
+          d: f.d
+        };
+      }
+    }
+  }
+
+  setInterval(drawFlakes, 30);
+</script>
+
+</body>
+</html>
